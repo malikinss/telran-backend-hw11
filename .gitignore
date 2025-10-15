@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs.txt
+
+# Temporary / large files
+large_file
+file.txt
+
+# Persistent data folder
+data/
