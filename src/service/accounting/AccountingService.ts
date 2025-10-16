@@ -10,11 +10,15 @@ import LoginData from "../../model/dtoTypes/LoginData.ts";
  * @method login - Authenticates a user based on provided login credentials.
  *
  * @example
- * const token = accountingService.login({
- *   email: "user@example.com",
- *   password: "securePassword123"
- * });
- * console.log(token); // -> JWT token string
+ * const userData = service.login({ email: "admin@example.com", password: "admin123" });
+ * console.log(userData); // e.g.,
+ * {
+ * 	acessToken: "any token",
+ * 	user: {
+ * 		email: userEmail,
+ * 		id: userId (temporary user role)
+ * 	}
+ * }
  */
 export default interface AccountingService {
 	/**
@@ -25,8 +29,15 @@ export default interface AccountingService {
 	 * @throws {AuthenticationError} If the credentials are invalid.
 	 *
 	 * @example
-	 * const token = service.login({ email: "admin@example.com", password: "admin123" });
-	 * console.log(token); // e.g., "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+	 * const userData = service.login({ email: "admin@example.com", password: "admin123" });
+	 * console.log(userData); // e.g.,
+	 * {
+	 * 	acessToken: "any token",
+	 * 	user: {
+	 * 		email: userEmail,
+	 * 		id: userId (temporary user role)
+	 * 	}
+	 * }
 	 */
-	login(loginData: LoginData): string;
+	login(loginData: LoginData): object;
 }

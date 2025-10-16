@@ -17,8 +17,8 @@ import { mockAdminData, mockUserData } from "../../utils/mockData.ts";
  *
  * @example
  * const service = new AccountingServiceMap();
- * const token = service.login({ email: "user@tel-ran.com", password: "user123" });
- * console.log(token); // JWT token
+ * const userData = service.login({ email: "user@tel-ran.com", password: "user123" });
+ * console.log(userData); // User data
  */
 class AccountingServiceMap implements AccountingService {
 	private _accounts: Map<string, Account> = new Map();
@@ -29,17 +29,17 @@ class AccountingServiceMap implements AccountingService {
 	}
 
 	/**
-	 * Authenticates the provided login credentials and returns a JWT token.
+	 * Authenticates the provided login credentials and returns a JWT token and user data.
 	 *
 	 * @param {LoginData} loginData - The login credentials (email and password).
-	 * @returns {string} The generated JWT token upon successful authentication.
+	 * @returns {object} The object with generated JWT token upon successful authentication and user data.
 	 * @throws {Error} If the credentials are invalid.
 	 *
 	 * @example
 	 * const token = service.login({ email: "admin@tel-ran.com", password: "admin123" });
 	 * console.log(token);
 	 */
-	login(loginData: LoginData): string {
+	login(loginData: LoginData): object {
 		const account: Account | undefined = this._accounts.get(
 			loginData.email
 		);
@@ -51,7 +51,13 @@ class AccountingServiceMap implements AccountingService {
 			throw new AuthenticationError("Wrong credentials!");
 		}
 
-		return JwtUtil.getJWT(account);
+		return {
+			accessToken: JwtUtil.getJWT(account),
+			user: {
+				email: account.username,
+				id: account.role,
+			},
+		};
 	}
 }
 
