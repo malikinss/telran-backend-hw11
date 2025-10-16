@@ -29,3 +29,19 @@ export class AuthorizationError extends Error {
 		this.name = "AuthorizationError";
 	}
 }
+
+/**
+ * Error thrown when login credentials are invalid.
+ * Typically used when the provided username or password is incorrect.
+ *
+ * @extends Error
+ * @example
+ * throw new LoginError();
+ * // Throws an error with message "Wrong Credentials"
+ */
+export class LoginError extends Error {
+	constructor(message = "Wrong Credentials") {
+		super(message);
+		this.name = "LoginError";
+	}
+}
