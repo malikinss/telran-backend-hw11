@@ -7,7 +7,8 @@
 	"type": "module",
 	"main": "index.ts",
 	"scripts": {
-		"dev": "nodemon"
+		"dev": "nodemon",
+		"test-controller": "node --test --no-warnings --loader ts-node/esm --env-file=envTest.test.env src/_tests_/index.test.ts"
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
@@ -40,11 +41,11 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/malikinss/telran-backend-hw9.git"
+		"url": "git+https://github.com/malikinss/telran-backend-hw11.git"
 	},
 	"keywords": [],
 	"bugs": {
-		"url": "https://github.com/malikinss/telran-backend-hw9/issues"
+		"url": "https://github.com/malikinss/telran-backend-hw11/issues"
 	},
-	"homepage": "https://github.com/malikinss/telran-backend-hw9#readme"
+	"homepage": "https://github.com/malikinss/telran-backend-hw11#readme"
 }
