@@ -60,7 +60,3 @@ MIT License
 ---
 
 Made with ❤️ and `TypeScript` by **Sam-Shepsl Malikin**
-
-```
-
-```
