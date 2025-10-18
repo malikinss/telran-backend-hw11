@@ -3,6 +3,7 @@
 import { ZodError } from "zod";
 import { Request, Response, NextFunction } from "express";
 import { extractZodErrorMessage } from "./zodMessageExtractor.ts";
+import { LoginError } from "../../model/errorTypes/aaaErrors.ts";
 
 /**
  * Mapping of known error names to corresponding HTTP status codes.
@@ -13,6 +14,7 @@ const ERROR_STATUS: Record<string, number> = {
 	AuthenticationError: 401,
 	AuthorizationError: 403,
 	ZodError: 400,
+	LoginError: 400,
 };
 
 /**
