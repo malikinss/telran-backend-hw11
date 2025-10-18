@@ -49,7 +49,7 @@ const messages = {
  * const parsed = employeeSchema.parse(data);
  * // Returns validated employee object or throws ZodError if invalid.
  */
-const employeeSchema = z.object({
+export const employeeSchema = z.object({
 	id: z.string().uuid().optional(),
 	fullName: z.string().min(2, { message: messages.name }),
 	avatar: z.string().url({ message: messages.avatar }),
@@ -70,4 +70,4 @@ const employeeSchema = z.object({
 		.max(maxSalary, { message: messages.maxSalary }),
 });
 
-export default employeeSchema;
+export const employeeSchemaPartial = employeeSchema.partial();
