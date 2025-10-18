@@ -2,27 +2,19 @@
 
 import "./config/loadEnv.ts";
 import { startServer } from "./server/app.ts";
-import { fileStorage } from "./utils/fileStorage.ts";
-import { employeesService } from "./service/employee/EmployeesServiceMap.ts";
+import { gracefulShutdown } from "./utils/gracefulShutdown.ts";
 
+/**
+ * Reads the port from environment or defaults to 3000.
+ */
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+
+// Start the Express server
 startServer(PORT);
 
 /**
- * Gracefully shuts down the application by saving employees to file before exiting.
- * @param signal - The termination signal received (e.g., 'SIGINT', 'SIGTERM').
- * @returns {void}
- * @example
- * // On receiving SIGINT or SIGTERM signal
- * Received SIGINT. Saving employees...
- * // Employees are saved and application exits
+ * Attach graceful shutdown handlers for system termination signals.
+ * Ensures in-memory employees are saved before exiting.
  */
-const shutdown = (signal: string) => {
-	console.log(`Received ${signal}. Saving employees...`);
-	fileStorage.saveEmployees(employeesService.toArray());
-	process.exit(0);
-};
-
-// Handle termination signals to save data before exit
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
