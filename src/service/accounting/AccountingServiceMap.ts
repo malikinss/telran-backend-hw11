@@ -8,22 +8,20 @@ import { AuthenticationError } from "../../model/errorTypes/aaaErrors.ts";
 import passwordUtil from "../../utils/security/PasswordUtil.ts";
 import { mockAdminData, mockUserData } from "../../utils/mockData.ts";
 
+const logPrefix = "[AccountingService]";
+
 /**
  * Service implementation of {@link AccountingService} using an in-memory Map.
  * This is a mock version intended for testing and development.
  *
  * @class AccountingServiceMap
  * @implements {AccountingService}
- *
- * @example
- * const service = new AccountingServiceMap();
- * const userData = service.login({ email: "user@tel-ran.com", password: "user123" });
- * console.log(userData); // User data
  */
 class AccountingServiceMap implements AccountingService {
 	private _accounts: Map<string, Account> = new Map();
 
 	constructor() {
+		console.log(`${logPrefix} Initializing in-memory accounts...`);
 		this._accounts.set(mockUserData.username, mockUserData);
 		this._accounts.set(mockAdminData.username, mockAdminData);
 	}
@@ -33,29 +31,41 @@ class AccountingServiceMap implements AccountingService {
 	 *
 	 * @param {LoginData} loginData - The login credentials (email and password).
 	 * @returns {object} The object with generated JWT token upon successful authentication and user data.
-	 * @throws {Error} If the credentials are invalid.
-	 *
-	 * @example
-	 * const token = service.login({ email: "admin@tel-ran.com", password: "admin123" });
-	 * console.log(token);
+	 * @throws {AuthenticationError} If the credentials are invalid.
 	 */
 	login(loginData: LoginData): object {
+		console.log(
+			`${logPrefix} Login attempt for email: ${loginData.email}`
+		);
+
 		const account: Account | undefined = this._accounts.get(
 			loginData.email
 		);
 
-		if (
-			!account ||
-			!passwordUtil.verify(loginData.password, account.password)
-		) {
+		if (!account) {
+			console.warn(`${logPrefix} User not found: ${loginData.email}`);
 			throw new AuthenticationError("Wrong credentials!");
 		}
 
+		const passwordValid = passwordUtil.verify(
+			loginData.password,
+			account.password
+		);
+		if (!passwordValid) {
+			console.warn(
+				`${logPrefix} Invalid password for: ${loginData.email}`
+			);
+			throw new AuthenticationError("Wrong credentials!");
+		}
+
+		const token = JwtUtil.getJWT(account);
+		console.log(`${logPrefix} Login successful for: ${loginData.email}`);
+
 		return {
-			accessToken: JwtUtil.getJWT(account),
+			accessToken: token,
 			user: {
 				email: account.username,
-				id: account.role,
+				role: account.role,
 			},
 		};
 	}
@@ -63,7 +73,6 @@ class AccountingServiceMap implements AccountingService {
 
 /**
  * Default exported singleton instance of {@link AccountingServiceMap}.
- * @constant
  */
 const accountingService = new AccountingServiceMap();
 export default accountingService;
