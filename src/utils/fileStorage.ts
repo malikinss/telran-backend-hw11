@@ -1,12 +1,21 @@
 // src/utils/fileStorage.ts
 
 import fs from "fs";
-import path from "path";
 import { Employee } from "../model/dtoTypes/Employee.ts";
+import { STORAGE_CONFIG } from "../config/storageConfig.ts";
+import { saveJsonToFile } from "./saveJsonToFile.ts";
 
-const ENCODING = "utf-8";
-const DATA_DIR = path.resolve("data");
-const FILE_PATH = path.join(DATA_DIR, "employees.json");
+const logPrefix = "[fileStorage]";
+const messages = {
+	saving: {
+		success: `${logPrefix} ✅ Employees saved successfully.`,
+		error: `${logPrefix} ❌ Failed to save employees:`,
+		nothingToSave: `${logPrefix} ℹ️ Nothing to save — no changes detected.`,
+	},
+	loading: {
+		error: `${logPrefix} ❌ Failed to load employees:`,
+	},
+};
 
 /**
  * Ensures that the data directory and the employees file exist.
@@ -17,13 +26,13 @@ const FILE_PATH = path.join(DATA_DIR, "employees.json");
  * ensureDataFileExists();
  * // Creates 'data/employees.json' with [] if it doesn't exist
  */
-function ensureDataFileExists(): void {
-	if (!fs.existsSync(DATA_DIR)) {
-		fs.mkdirSync(DATA_DIR, { recursive: true });
+function ensureStorageReady(): void {
+	if (!fs.existsSync(STORAGE_CONFIG.DATA_DIR)) {
+		fs.mkdirSync(STORAGE_CONFIG.DATA_DIR, { recursive: true });
 	}
 
-	if (!fs.existsSync(FILE_PATH)) {
-		fs.writeFileSync(FILE_PATH, JSON.stringify([], null, 2), ENCODING);
+	if (!fs.existsSync(STORAGE_CONFIG.FILE_PATH)) {
+		saveJsonToFile([]);
 	}
 }
 
@@ -40,36 +49,45 @@ function ensureDataFileExists(): void {
  */
 function loadEmployees(): Employee[] {
 	try {
-		ensureDataFileExists();
-		const data = fs.readFileSync(FILE_PATH, ENCODING);
+		ensureStorageReady();
+		const data = fs.readFileSync(STORAGE_CONFIG.FILE_PATH, {
+			encoding: STORAGE_CONFIG.ENCODING,
+		});
 		return JSON.parse(data) as Employee[];
 	} catch (error) {
-		console.error("❌ Failed to load employees:", error);
+		console.error(messages.loading.error, error);
 		return [];
 	}
 }
 
 /**
- * Saves the given array of employees to the JSON file.
+ * Persists the provided list of employees into a JSON file.
  *
- * @param {Employee[]} employees - Array of Employee objects to persist.
+ * This function writes to the file only if the `isUpdated` flag is `true`.
+ * Ensures that the data file exists before writing. Logs an error to the console
+ * if the operation fails, or a message if there is nothing to save.
+ *
+ * @param {Employee[]} employees - The list of Employee objects to save.
+ * @param {boolean} isUpdated - Whether the data has changed and needs to be saved.
  * @returns {void}
  *
  * @example
- * fileStorage.saveEmployees([
- *   { id: '1', fullName: 'Jane Smith', department: 'QA', salary: 12000 }
- * ]);
+ * saveEmployees([
+ *   { id: "1", fullName: "Jane Smith", department: "QA", salary: 12000 }
+ * ], true);
  */
-function saveEmployees(employees: Employee[]): void {
+function saveEmployees(employees: Employee[], isUpdated: boolean): void {
+	if (!isUpdated) {
+		console.log(messages.saving.nothingToSave);
+		return;
+	}
+
 	try {
-		ensureDataFileExists();
-		fs.writeFileSync(
-			FILE_PATH,
-			JSON.stringify(employees, null, 2),
-			ENCODING
-		);
+		ensureStorageReady();
+		saveJsonToFile(employees);
+		console.log(messages.saving.success);
 	} catch (error) {
-		console.error("❌ Failed to save employees:", error);
+		console.error(messages.saving.error, error);
 	}
 }
 
