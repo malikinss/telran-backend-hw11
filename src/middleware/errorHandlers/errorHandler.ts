@@ -17,19 +17,11 @@ const ERROR_STATUS: Record<string, number> = {
 	LoginError: 400,
 };
 
+const logPrefix = "[ErrorHandler]";
+
 /**
  * Express error-handling middleware.
- * Catches thrown errors in routes or controllers and sends
- * a standardized JSON response with appropriate HTTP status.
- *
- * @param {unknown} err - The error object thrown in a route or middleware.
- * @param {Request} _req - The Express request object (unused here).
- * @param {Response} res - The Express response object to send JSON error.
- * @param {NextFunction} _next - The next middleware function (not used, required for Express).
- *
- * @example
- * app.use(errorHandler);
- * // Handles errors thrown in routes automatically
+ * Sends standardized JSON responses for all thrown errors.
  */
 export function errorHandler(
 	err: unknown,
@@ -39,28 +31,20 @@ export function errorHandler(
 ): void {
 	const { status, name, message } = extractErrorData(err);
 
-	console.error(`[${status}] ${name}: ${message}`);
+	console.error(`${logPrefix} [${status}] ${name}: ${message}`);
 
 	res.status(status).json({ error: { name, message, status } });
 }
 
 /**
  * Extracts standardized error data from any thrown error.
- * Handles known error types and provides defaults for unknown ones.
- *
- * @param {unknown} err - The error object to extract data from.
- * @returns {{ status: number; name: string; message: string }}
- *   Object containing the HTTP status code, error name, and message.
- *
- * @example
- * const data = extractErrorData(new NotFoundError("123"));
- * // Returns: { status: 404, name: "NotFoundError", message: "Employee with id 123 not found" }
  */
 function extractErrorData(err: unknown): {
 	status: number;
 	name: string;
 	message: string;
 } {
+	// Special handling for Zod validation errors
 	if (err instanceof ZodError) {
 		return {
 			name: "ZodError",
@@ -69,6 +53,7 @@ function extractErrorData(err: unknown): {
 		};
 	}
 
+	// Known Error instances
 	if (err instanceof Error) {
 		const status = ERROR_STATUS[err.name] ?? 500;
 		return {
@@ -78,7 +63,7 @@ function extractErrorData(err: unknown): {
 		};
 	}
 
-	// Fallback for non-error throws
+	// Fallback for unknown throwables
 	return {
 		name: "UnknownError",
 		status: 500,
