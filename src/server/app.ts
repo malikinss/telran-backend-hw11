@@ -21,15 +21,15 @@ const logPrefix = "[Server]";
 function createApp(): Express {
 	const app = express();
 
-	console.log(`${logPrefix} Initializing Express app...`);
+	console.log(`${logPrefix} ℹ️  Initializing Express app...`);
 
 	// Middleware: Core
-	console.log(`${logPrefix} Applying core middleware`);
+	console.log(`${logPrefix} ℹ️  Applying core middleware`);
 	app.use(express.json());
 	app.use(cors());
 	app.use((req, _, next) => {
 		console.log(
-			`${logPrefix} → Incoming request: ${req.method} ${req.url}`
+			`${logPrefix} ℹ️  Incoming request: ${req.method} ${req.url}`
 		);
 		next();
 	});
@@ -42,7 +42,7 @@ function createApp(): Express {
 	const skipCodeThreshold = Number(process.env.SKIP_CODE_THRESHOLD) || 400;
 
 	if (morganFormat !== "none") {
-		console.log(`${logPrefix} Configuring morgan logger`);
+		console.log(`${logPrefix} ℹ️  Configuring morgan logger`);
 		app.use(
 			morgan(morganFormat, {
 				skip: (_, res) => res.statusCode < skipCodeThreshold,
@@ -51,15 +51,15 @@ function createApp(): Express {
 	}
 
 	// Routes
-	console.log(`${logPrefix} Setting up routes`);
+	console.log(`${logPrefix} ℹ️  Setting up routes`);
 	app.use("/api/employees", authenticate, employeeRoutes);
 	app.use("/api/login", authRoutes);
 
 	// Error handler
-	console.log(`${logPrefix} Adding error handler middleware`);
+	console.log(`${logPrefix} ℹ️  Adding error handler middleware`);
 	app.use(errorHandler);
 
-	console.log(`${logPrefix} App initialization complete`);
+	console.log(`${logPrefix} ✅ App initialization complete`);
 	return app;
 }
 
@@ -78,11 +78,11 @@ export function startServer(port: number): void {
 	});
 
 	process.on("SIGINT", () => {
-		console.log(`${logPrefix} Received SIGINT`);
+		console.log(`${logPrefix} ℹ️  Received SIGINT`);
 		shutdown("SIGINT");
 	});
 	process.on("SIGTERM", () => {
-		console.log(`${logPrefix} Received SIGTERM`);
+		console.log(`${logPrefix} ℹ️  Received SIGTERM`);
 		shutdown("SIGTERM");
 	});
 }
