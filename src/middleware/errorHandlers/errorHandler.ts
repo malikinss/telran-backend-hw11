@@ -30,7 +30,7 @@ export function errorHandler(
 ): void {
 	const { status, name, message } = extractErrorData(err);
 
-	console.error(`${logPrefix} [${status}] ${name}: ${message}`);
+	console.error(`${logPrefix} ❌  [${status}] ${name}: ${message}`);
 
 	res.status(status).json({ error: { name, message, status } });
 }
