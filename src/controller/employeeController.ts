@@ -3,8 +3,27 @@
 import { Request, Response, NextFunction } from "express";
 import { employeesService } from "../service/employee/EmployeesServiceMap.ts";
 import { Employee } from "../model/dtoTypes/Employee.ts";
+import { success } from "zod";
 
 const logPrefix = "[EmployeeController]";
+const messages = {
+	getAll: {
+		start: `${logPrefix} ℹ️  Fetching all employees`,
+		success: (emplNum) => `${logPrefix} ✅  Found ${emplNum} employees`,
+	},
+	create: {
+		start: `${logPrefix} ℹ️  Creating employee`,
+		success: (id) => `${logPrefix} ✅  Employee created with id: ${id}`,
+	},
+	update: {
+		start: `${logPrefix} ℹ️  Updating employee`,
+		success: (id) => `${logPrefix} ✅  Employee updated: ${id}`,
+	},
+	delete: {
+		start: `${logPrefix} ℹ️  Deleting employee`,
+		success: (id) => `${logPrefix} ✅  Employee deleted: ${id}`,
+	},
+};
 
 /**
  * Get all employees, optionally filtered by department.
@@ -23,9 +42,9 @@ function getAllEmployees(req: Request, res: Response, _: NextFunction) {
 		typeof req.query.department === "string"
 			? req.query.department
 			: undefined;
-	console.log(`${logPrefix} Fetching all employees`, { department });
+	console.log(messages.getAll.start, { department });
 	const employees: Employee[] = employeesService.getAll(department);
-	console.log(`${logPrefix} Found ${employees.length} employees`);
+	console.log(messages.getAll.success(employees.length));
 	res.status(200).json(employees);
 }
 
@@ -44,12 +63,12 @@ function getAllEmployees(req: Request, res: Response, _: NextFunction) {
  */
 function createEmployee(req: Request, res: Response, _: NextFunction) {
 	const newEmployee: Employee = req.body as Employee;
-	console.log(`${logPrefix} Creating employee`, {
+	console.log(messages.create.start, {
 		fullName: newEmployee.fullName,
 		department: newEmployee.department,
 	});
 	const addedEmployee: Employee = employeesService.addEmployee(newEmployee);
-	console.log(`${logPrefix} Employee created with id: ${addedEmployee.id}`);
+	console.log(messages.create.success(addedEmployee.id));
 	res.status(201).json(addedEmployee);
 }
 
@@ -67,12 +86,12 @@ function createEmployee(req: Request, res: Response, _: NextFunction) {
  */
 function updateEmployee(req: Request, res: Response, _: NextFunction) {
 	const id: string = req.params.id;
-	console.log(`${logPrefix} Updating employee`, { id, updates: req.body });
+	console.log(messages.update.success, { id, updates: req.body });
 	const updated: Employee | null = employeesService.updateEmployee(
 		id,
 		req.body as Partial<Employee>
 	);
-	console.log(`${logPrefix} Employee updated: ${updated?.id}`);
+	console.log(messages.update.success(updated?.id));
 	res.status(200).json(updated);
 }
 
@@ -89,9 +108,9 @@ function updateEmployee(req: Request, res: Response, _: NextFunction) {
  */
 function deleteEmployee(req: Request, res: Response, _: NextFunction) {
 	const id: string = req.params.id;
-	console.log(`${logPrefix} Deleting employee`, { id });
+	console.log(messages.delete.start, { id });
 	const deleted: Employee | null = employeesService.deleteEmployee(id);
-	console.log(`${logPrefix} Employee deleted: ${deleted?.id}`);
+	console.log(messages.delete.success(deleted?.id));
 	res.status(200).json(deleted);
 }
 
