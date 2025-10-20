@@ -3,32 +3,42 @@
 import { fileStorage } from "./fileStorage.ts";
 import { employeesService } from "../service/employee/EmployeesServiceMap.ts";
 
+const logPrefix = "[Shutdown]";
+
+const messages = {
+	start: (signal: string) =>
+		`${logPrefix} ⚠️ Received ${signal}. Attempting to save employees before exit...`,
+	success: `${logPrefix} ✅ Employees saved successfully.`,
+	error: `${logPrefix} ❌ Error saving employees during shutdown:`,
+	noChanges: `${logPrefix} ℹ️ No changes detected. Nothing to save.`,
+};
+
 /**
  * Gracefully shuts down the application.
- * Persists in-memory employees to file before exiting.
+ * Persists in-memory employees to file before exiting the process.
  *
- * @param {string} signal - The system signal that triggered shutdown (e.g. "SIGINT", "SIGTERM").
+ * @param {string} signal - The system signal that triggered shutdown (e.g., "SIGINT", "SIGTERM").
  *
  * @example
  * process.on("SIGINT", () => gracefulShutdown("SIGINT"));
  */
-export function gracefulShutdown(signal: string): void {
-	console.log(
-		`⚠️ Received ${signal}. Attempting to save employees before exit...`
-	);
+export default function gracefulShutdown(signal: string): void {
+	console.log(messages.start(signal));
+
 	try {
 		const employees = employeesService.toArray();
 		const isUpdated = employeesService.isUpdated();
 
 		if (isUpdated) {
 			fileStorage.saveEmployees(employees, isUpdated);
-			console.log("✅ Employees saved successfully.");
+			console.log(messages.success);
 		} else {
-			console.log("ℹ️ No changes detected. Nothing to save.");
+			console.log(messages.noChanges);
 		}
 	} catch (error) {
-		console.error("❌ Error saving employees during shutdown:", error);
+		console.error(messages.error, error);
 	} finally {
+		// Ensure the process always exits after shutdown
 		process.exit(0);
 	}
 }
