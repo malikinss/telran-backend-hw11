@@ -3,7 +3,6 @@
 import { ZodError } from "zod";
 import { Request, Response, NextFunction } from "express";
 import { extractZodErrorMessage } from "./zodMessageExtractor.ts";
-import { LoginError } from "../../model/errorTypes/aaaErrors.ts";
 
 /**
  * Mapping of known error names to corresponding HTTP status codes.
