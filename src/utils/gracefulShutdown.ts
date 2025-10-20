@@ -7,10 +7,10 @@ const logPrefix = "[Shutdown]";
 
 const messages = {
 	start: (signal: string) =>
-		`${logPrefix} ⚠️ Received ${signal}. Attempting to save employees before exit...`,
-	success: `${logPrefix} ✅ Employees saved successfully.`,
-	error: `${logPrefix} ❌ Error saving employees during shutdown:`,
-	noChanges: `${logPrefix} ℹ️ No changes detected. Nothing to save.`,
+		`${logPrefix} ⚠️  Received ${signal}. Attempting to save employees before exit...`,
+	success: `${logPrefix} ✅  Employees saved successfully.`,
+	error: `${logPrefix} ❌  Error saving employees during shutdown:`,
+	noChanges: `${logPrefix} ℹ️  No changes detected. Nothing to save.`,
 };
 
 /**
