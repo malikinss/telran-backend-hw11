@@ -1,40 +1,56 @@
 // src/route/employeeRoutes.ts
 
-import express from "express";
+import express, { RequestHandler } from "express";
+import { auth } from "../middleware/auth/auth.ts";
+import validation from "../middleware/validations/validateEmployee.ts";
+import {
+	employeeSchema,
+	employeeSchemaPartial,
+} from "../middleware/validations/schemas/employeeSchema.ts";
 import {
 	getAllEmployees,
 	createEmployee,
 	updateEmployee,
 	deleteEmployee,
 } from "../controller/employeeController.ts";
-import validation from "../middleware/validations/validateEmployee.ts";
-import employeeSchema from "../middleware/validations/schemas/employeeSchema.ts";
-import { auth, authenticate } from "../middleware/auth/auth.ts";
 
 const router = express.Router();
 
-// GET /api/employees - Get all employees, allowed for ADMIN and USER
-router.get("/", authenticate, auth(["ADMIN", "USER"]), getAllEmployees);
+// Middleware for authorization
+const allAuth: RequestHandler = auth(["USER", "ADMIN"]);
+const adminAuth: RequestHandler = auth(["ADMIN"]);
 
-// POST /api/employees - Create a new employee, allowed only for ADMIN
-router.post(
-	"/",
-	authenticate,
-	auth(["ADMIN"]),
-	validation(employeeSchema),
-	createEmployee
-);
+/**
+ * GET /api/employees
+ * Returns all employees.
+ * Access: USER, ADMIN
+ */
+router.get("/", allAuth, getAllEmployees);
 
-// PATCH /api/employees/:id - Update an existing employee, allowed only for ADMIN
+/**
+ * POST /api/employees
+ * Creates a new employee.
+ * Access: ADMIN only
+ */
+router.post("/", adminAuth, validation(employeeSchema), createEmployee);
+
+/**
+ * PATCH /api/employees/:id
+ * Updates an existing employee partially.
+ * Access: ADMIN only
+ */
 router.patch(
 	"/:id",
-	authenticate,
-	auth(["ADMIN"]),
-	validation(employeeSchema.partial()),
+	adminAuth,
+	validation(employeeSchemaPartial),
 	updateEmployee
 );
 
-// DELETE /api/employees/:id - Delete an employee, allowed only for ADMIN
-router.delete("/:id", authenticate, auth(["ADMIN"]), deleteEmployee);
+/**
+ * DELETE /api/employees/:id
+ * Deletes an employee by ID.
+ * Access: ADMIN only
+ */
+router.delete("/:id", adminAuth, deleteEmployee);
 
 export default router;
