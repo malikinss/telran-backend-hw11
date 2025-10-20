@@ -8,6 +8,7 @@ import {
 } from "../../model/errorTypes/aaaErrors.ts";
 
 const BEARER_PREFIX = "Bearer ";
+const logPrefix = "[AuthMiddleware]";
 
 /**
  * Extended Request type that includes authentication fields.
@@ -37,7 +38,7 @@ export function authenticate(
 	const authHeader = req.header("Authorization");
 
 	if (!authHeader || !authHeader.startsWith(BEARER_PREFIX)) {
-		// Missing or malformed header
+		console.warn(`${logPrefix} Missing or malformed Authorization header`);
 		throw new AuthenticationError();
 	}
 
@@ -47,8 +48,13 @@ export function authenticate(
 		const payload = JwtUtil.verifyToken(token);
 		req.username = payload.sub as string;
 		req.role = payload.role as string;
+
+		console.log(
+			`${logPrefix} Authenticated user: ${req.username}, role: ${req.role}`
+		);
 		next();
-	} catch {
+	} catch (err) {
+		console.error(`${logPrefix} Invalid token`, err);
 		throw new AuthenticationError();
 	}
 }
@@ -72,11 +78,20 @@ export function auth(roles: string[]): RequestHandler {
 		next: NextFunction
 	): void => {
 		if (!req.role) {
+			console.warn(`${logPrefix} Unauthorized access attempt`);
 			throw new AuthenticationError();
 		}
+
 		if (!roles.includes(req.role)) {
+			console.warn(
+				`${logPrefix} Forbidden: User ${req.username} with role ${req.role} tried to access restricted route`
+			);
 			throw new AuthorizationError();
 		}
+
+		console.log(
+			`${logPrefix} Authorized user: ${req.username}, role: ${req.role}`
+		);
 		next();
 	};
 }
