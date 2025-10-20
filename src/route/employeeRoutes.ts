@@ -2,7 +2,7 @@
 
 import express, { RequestHandler } from "express";
 import { auth } from "../middleware/auth/auth.ts";
-import validation from "../middleware/validations/validateEmployee.ts";
+import validate from "../middleware/validations/validation.ts";
 import {
 	employeeSchema,
 	employeeSchemaPartial,
@@ -32,7 +32,7 @@ router.get("/", allAuth, getAllEmployees);
  * Creates a new employee.
  * Access: ADMIN only
  */
-router.post("/", adminAuth, validation(employeeSchema), createEmployee);
+router.post("/", adminAuth, validate(employeeSchema), createEmployee);
 
 /**
  * PATCH /api/employees/:id
@@ -42,7 +42,7 @@ router.post("/", adminAuth, validation(employeeSchema), createEmployee);
 router.patch(
 	"/:id",
 	adminAuth,
-	validation(employeeSchemaPartial),
+	validate(employeeSchemaPartial),
 	updateEmployee
 );
 
