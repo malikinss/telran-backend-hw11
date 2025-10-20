@@ -3,8 +3,16 @@
 import { Request, Response, NextFunction } from "express";
 import accountingService from "../service/accounting/AccountingServiceMap.ts";
 import LoginData from "../model/dtoTypes/LoginData.ts";
+import { success } from "zod";
 
 const logPrefix = "[AccountingController]";
+const messages = {
+	start: (email: string) =>
+		`${logPrefix} ℹ️  Received login attempt for: ${email}`,
+	success: (email: string) =>
+		`${logPrefix} ✅  Login successful for: ${email}.`,
+	error: `${logPrefix} ❌  Login failed:`,
+};
 
 /**
  * Handles user login.
@@ -29,21 +37,20 @@ const logPrefix = "[AccountingController]";
  * }
  */
 export function login(req: Request, res: Response, next: NextFunction): void {
-	console.log(`${logPrefix} Login attempt received`);
 	try {
 		const data: LoginData = req.body as LoginData;
 
 		// Log received login data (without password for security)
-		console.log(`${logPrefix} Received login attempt for: ${data.email}`);
+		console.log(messages.start(data.email));
 
 		const token = accountingService.login(data);
 
 		// Log success with token length only (avoid full JWT in logs for security)
-		console.log(`${logPrefix} Login successful for: ${data.email}.`);
+		console.log(messages.success(data.email));
 
 		res.status(200).json({ token });
 	} catch (error) {
-		console.error(`${logPrefix} Login failed:`, (error as Error).message);
+		console.error(messages.error, (error as Error).message);
 		next(error);
 	}
 }
