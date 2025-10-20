@@ -38,7 +38,9 @@ export function authenticate(
 	const authHeader = req.header("Authorization");
 
 	if (!authHeader || !authHeader.startsWith(BEARER_PREFIX)) {
-		console.warn(`${logPrefix} Missing or malformed Authorization header`);
+		console.warn(
+			`${logPrefix} ⚠️  Missing or malformed Authorization header`
+		);
 		throw new AuthenticationError();
 	}
 
@@ -50,11 +52,11 @@ export function authenticate(
 		req.role = payload.role as string;
 
 		console.log(
-			`${logPrefix} Authenticated user: ${req.username}, role: ${req.role}`
+			`${logPrefix} ✅  Authenticated user: ${req.username}, role: ${req.role}`
 		);
 		next();
 	} catch (err) {
-		console.error(`${logPrefix} Invalid token`, err);
+		console.error(`${logPrefix} ❌ Invalid token`, err);
 		throw new AuthenticationError();
 	}
 }
@@ -78,19 +80,19 @@ export function auth(roles: string[]): RequestHandler {
 		next: NextFunction
 	): void => {
 		if (!req.role) {
-			console.warn(`${logPrefix} Unauthorized access attempt`);
+			console.warn(`${logPrefix} ⚠️  Unauthorized access attempt`);
 			throw new AuthenticationError();
 		}
 
 		if (!roles.includes(req.role)) {
 			console.warn(
-				`${logPrefix} Forbidden: User ${req.username} with role ${req.role} tried to access restricted route`
+				`${logPrefix} ⚠️  Forbidden: User ${req.username} with role ${req.role} tried to access restricted route`
 			);
 			throw new AuthorizationError();
 		}
 
 		console.log(
-			`${logPrefix} Authorized user: ${req.username}, role: ${req.role}`
+			`${logPrefix} ✅  Authorized user: ${req.username}, role: ${req.role}`
 		);
 		next();
 	};
