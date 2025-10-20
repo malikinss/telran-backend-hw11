@@ -14,4 +14,7 @@ import path from "path";
 const envPath = path.resolve(process.cwd(), ".env");
 dotenv.config({ path: envPath });
 
-console.log("✅ .env loaded, environment variables are now available");
+const logPrefix = "[LoadEnv]";
+console.log(
+	`${logPrefix} ✅ .env loaded, environment variables are now available`
+);
