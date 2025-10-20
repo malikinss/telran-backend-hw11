@@ -29,7 +29,7 @@ const logPrefix = "[AccountingController]";
  * }
  */
 export function login(req: Request, res: Response, next: NextFunction): void {
-	console.log(`${logPrefix} → Login attempt received`);
+	console.log(`${logPrefix} Login attempt received`);
 	try {
 		const data: LoginData = req.body as LoginData;
 
