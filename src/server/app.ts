@@ -1,48 +1,88 @@
 // src/server/app.ts
 
-import express from "express";
+import express, { Express } from "express";
 import morgan from "morgan";
+import cors from "cors";
 import _ from "lodash";
 import employeeRoutes from "../route/employeeRoutes.ts";
 import authRoutes from "../route/authRoutes.ts";
 import { errorHandler } from "../middleware/errorHandlers/errorHandler.ts";
+import { authenticate } from "../middleware/auth/auth.ts";
+import shutdown from "../utils/gracefulShutdown.ts";
+import "../config/loadEnv.ts"; // ✅ Ensures .env is loaded before app starts
 
-/** Starts the Express server on the specified port.
- * @param {number} port - The port number to start the server on.
- * @returns {void}
- * @example
- * startServer(3000);
- * // Server is running on http://localhost:3000
+const logPrefix = "[Server]";
+
+/**
+ * Creates and configures an Express application.
+ *
+ * @returns {Express} A fully configured Express application instance.
  */
-export function startServer(port: number) {
-	// Load environment variables
-	const morganFormat = process.env.MORGAN_FORMAT || "tiny";
-
-	// Default to logging requests with status code >= 400
-	const skipCodeThreshold = process.env.SKIP_CODE_THRESHOLD
-		? parseInt(process.env.SKIP_CODE_THRESHOLD)
-		: 400;
-
-	// Initialize Express app
+function createApp(): Express {
 	const app = express();
+
+	console.log(`${logPrefix} Initializing Express app...`);
+
+	// Middleware: Core
+	console.log(`${logPrefix} Applying core middleware`);
 	app.use(express.json());
+	app.use(cors());
+	app.use((req, _, next) => {
+		console.log(
+			`${logPrefix} → Incoming request: ${req.method} ${req.url}`
+		);
+		next();
+	});
 
-	// Setup morgan for logging
-	app.use(
-		morgan(morganFormat, {
-			skip: (_, res) => res.statusCode < skipCodeThreshold,
-		})
-	);
+	// Uncomment to enable authentication globally
+	// app.use(authenticate);
 
-	// Define routes
-	app.use("/api/employees", employeeRoutes);
+	// Morgan logging configuration
+	const morganFormat = process.env.MORGAN_FORMAT || "tiny";
+	const skipCodeThreshold = Number(process.env.SKIP_CODE_THRESHOLD) || 400;
+
+	if (morganFormat !== "none") {
+		console.log(`${logPrefix} Configuring morgan logger`);
+		app.use(
+			morgan(morganFormat, {
+				skip: (_, res) => res.statusCode < skipCodeThreshold,
+			})
+		);
+	}
+
+	// Routes
+	console.log(`${logPrefix} Setting up routes`);
+	app.use("/api/employees", authenticate, employeeRoutes);
 	app.use("/api/login", authRoutes);
 
-	// Error handling middleware
+	// Error handler
+	console.log(`${logPrefix} Adding error handler middleware`);
 	app.use(errorHandler);
 
-	// Start the server
+	console.log(`${logPrefix} App initialization complete`);
+	return app;
+}
+
+/**
+ * Starts the Express server on the specified port.
+ *
+ * @param {number} port - The port number to start the server on.
+ */
+export function startServer(port: number): void {
+	const app = createApp();
+
 	app.listen(port, () => {
-		console.log(`Server is running on http://localhost:${port}`);
+		console.log(
+			`${logPrefix} 🚀 Server is running at http://localhost:${port}`
+		);
+	});
+
+	process.on("SIGINT", () => {
+		console.log(`${logPrefix} Received SIGINT`);
+		shutdown("SIGINT");
+	});
+	process.on("SIGTERM", () => {
+		console.log(`${logPrefix} Received SIGTERM`);
+		shutdown("SIGTERM");
 	});
 }
