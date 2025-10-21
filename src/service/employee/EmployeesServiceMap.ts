@@ -9,6 +9,14 @@ import {
 	NotFoundError,
 } from "../../model/errorTypes/employeeErrors.ts";
 
+const logPrefix = "[EmployeeService]";
+
+const messages = {
+	loading: (size) => `${logPrefix} ✅  Loaded ${size} employees from file`,
+	fill: (employee) =>
+		`${logPrefix} ⚠️  Skipping employee without ID: ${employee}`,
+};
+
 /**
  * In-memory implementation of EmployeesService using a Map.
  * Provides methods to add, get, update, and delete employees.
@@ -31,9 +39,7 @@ class EmployeesServiceMap implements EmployeesService {
 	private _loadFromFile(): void {
 		const loaded = fileStorage.loadEmployees();
 		this._fillEmployeeMap(loaded);
-		console.log(
-			`[EmployeesService] Loaded ${this._employees.size} employees from file`
-		);
+		console.log(messages.loading(this._employees.size));
 	}
 
 	/**
@@ -47,11 +53,7 @@ class EmployeesServiceMap implements EmployeesService {
 			if (employee.id) {
 				this._employees.set(employee.id, employee);
 			} else {
-				console.warn(
-					`[EmployeesService] Skipping employee without ID: ${JSON.stringify(
-						employee
-					)}`
-				);
+				console.warn(messages.fill(JSON.stringify(employee)));
 			}
 		}
 	}
