@@ -4,11 +4,37 @@ import Account from "../../model/dtoTypes/Account.ts";
 import LoginData from "../../model/dtoTypes/LoginData.ts";
 import JwtUtil from "../../utils/security/JwtUtil.ts";
 import AccountingService from "./AccountingService.ts";
-import { AuthenticationError } from "../../model/errorTypes/aaaErrors.ts";
+import {
+	AuthenticationError,
+	LoginError,
+} from "../../model/errorTypes/aaaErrors.ts";
 import passwordUtil from "../../utils/security/PasswordUtil.ts";
 import { mockAdminData, mockUserData } from "../../utils/mockData.ts";
 
 const logPrefix = "[AccountingService]";
+const messages = {
+	constructor: {
+		start: `${logPrefix} ℹ️  Initializing in-memory accounts...`,
+		success: (size: number) =>
+			`${logPrefix} ✅  Accounts initialized successfully. Total: ${size}`,
+	},
+	login: {
+		start: (email: string) =>
+			`${logPrefix} ℹ️  Login attempt for email: ${email}`,
+		found: (email: string) =>
+			`${logPrefix} 🔍  Account found for email: ${email}`,
+		warn: {
+			notFound: (email: string) =>
+				`${logPrefix} ⚠️  User not found: ${email}`,
+			wrongPswrd: (email: string) =>
+				`${logPrefix} ⚠️  Invalid password for: ${email}`,
+		},
+		success: (email: string) =>
+			`${logPrefix} ✅  Login successful for: ${email}`,
+		error: (email: string, err: unknown) =>
+			`${logPrefix} ❌  Login failed for ${email}: ${err}`,
+	},
+};
 
 /**
  * Service implementation of {@link AccountingService} using an in-memory Map.
@@ -21,9 +47,10 @@ class AccountingServiceMap implements AccountingService {
 	private _accounts: Map<string, Account> = new Map();
 
 	constructor() {
-		console.log(`${logPrefix} Initializing in-memory accounts...`);
+		console.log(messages.constructor.start);
 		this._accounts.set(mockUserData.username, mockUserData);
 		this._accounts.set(mockAdminData.username, mockAdminData);
+		console.log(messages.constructor.success(this._accounts.size));
 	}
 
 	/**
@@ -34,32 +61,29 @@ class AccountingServiceMap implements AccountingService {
 	 * @throws {AuthenticationError} If the credentials are invalid.
 	 */
 	login(loginData: LoginData): object {
-		console.log(
-			`${logPrefix} Login attempt for email: ${loginData.email}`
-		);
-
+		console.log(messages.login.start(loginData.email));
 		const account: Account | undefined = this._accounts.get(
 			loginData.email
 		);
 
 		if (!account) {
-			console.warn(`${logPrefix} User not found: ${loginData.email}`);
-			throw new AuthenticationError("Wrong credentials!");
+			console.warn(messages.login.warn.notFound(loginData.email));
+			throw new LoginError();
 		}
+
+		console.log(messages.login.found(loginData.email));
 
 		const passwordValid = passwordUtil.verify(
 			loginData.password,
 			account.password
 		);
 		if (!passwordValid) {
-			console.warn(
-				`${logPrefix} Invalid password for: ${loginData.email}`
-			);
-			throw new AuthenticationError("Wrong credentials!");
+			console.warn(messages.login.warn.wrongPswrd(loginData.email));
+			throw new LoginError();
 		}
 
 		const token = JwtUtil.getJWT(account);
-		console.log(`${logPrefix} Login successful for: ${loginData.email}`);
+		console.log(messages.login.success(loginData.email));
 
 		return {
 			accessToken: token,
