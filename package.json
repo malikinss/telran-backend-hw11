@@ -8,7 +8,7 @@
 	"main": "index.ts",
 	"scripts": {
 		"dev": "nodemon",
-		"test-controller": "node --test --no-warnings --loader ts-node/esm --env-file=envTest.test.env src/_tests_/index.test.ts"
+		"test-controller": "node --test --no-warnings --loader ts-node/esm --env-file=envTest.test.env src/__tests__/allRoutes.test.ts"
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
