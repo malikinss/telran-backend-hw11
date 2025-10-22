@@ -18,7 +18,7 @@ const logPrefix = "[Server]";
  *
  * @returns {Express} A fully configured Express application instance.
  */
-function createApp(): Express {
+export function createApp(): Express {
 	const app = express();
 
 	console.log(`${logPrefix} ℹ️  Initializing Express app...`);
@@ -52,8 +52,8 @@ function createApp(): Express {
 
 	// Routes
 	console.log(`${logPrefix} ℹ️  Setting up routes`);
-	app.use("/api/employees", authenticate, employeeRoutes);
-	app.use("/api/login", authRoutes);
+	app.use("/employees", authenticate, employeeRoutes);
+	app.use("/login", authRoutes);
 
 	// Error handler
 	console.log(`${logPrefix} ℹ️  Adding error handler middleware`);
@@ -66,11 +66,10 @@ function createApp(): Express {
 /**
  * Starts the Express server on the specified port.
  *
+ * @param {Express} app -
  * @param {number} port - The port number to start the server on.
  */
-export function startServer(port: number): void {
-	const app = createApp();
-
+export function startServer(app: Express, port: number): void {
 	app.listen(port, () => {
 		console.log(
 			`${logPrefix} 🚀 Server is running at http://localhost:${port}`
