@@ -9,6 +9,7 @@ import authRoutes from "../route/authRoutes.ts";
 import { errorHandler } from "../middleware/errorHandlers/errorHandler.ts";
 import { authenticate } from "../middleware/auth/auth.ts";
 import shutdown from "../utils/gracefulShutdown.ts";
+import logger from "../utils/logger.ts";
 import "../config/loadEnv.ts"; // ✅ Ensures .env is loaded before app starts
 
 const logPrefix = "[Server]";
@@ -21,14 +22,14 @@ const logPrefix = "[Server]";
 export function createApp(): Express {
 	const app = express();
 
-	console.log(`${logPrefix} ℹ️  Initializing Express app...`);
+	logger.debug(`${logPrefix} ℹ️  Initializing Express app...`);
 
 	// Middleware: Core
-	console.log(`${logPrefix} ℹ️  Applying core middleware`);
+	logger.debug(`${logPrefix} ℹ️  Applying core middleware`);
 	app.use(express.json());
 	app.use(cors());
 	app.use((req, _, next) => {
-		console.log(
+		logger.http(
 			`${logPrefix} ℹ️  Incoming request: ${req.method} ${req.url}`
 		);
 		next();
@@ -42,7 +43,7 @@ export function createApp(): Express {
 	const skipCodeThreshold = Number(process.env.SKIP_CODE_THRESHOLD) || 400;
 
 	if (morganFormat !== "none") {
-		console.log(`${logPrefix} ℹ️  Configuring morgan logger`);
+		logger.debug(`${logPrefix} ℹ️  Configuring morgan logger`);
 		app.use(
 			morgan(morganFormat, {
 				skip: (_, res) => res.statusCode < skipCodeThreshold,
@@ -51,15 +52,15 @@ export function createApp(): Express {
 	}
 
 	// Routes
-	console.log(`${logPrefix} ℹ️  Setting up routes`);
+	logger.debug(`${logPrefix} ℹ️  Setting up routes`);
 	app.use("/employees", authenticate, employeeRoutes);
 	app.use("/login", authRoutes);
 
 	// Error handler
-	console.log(`${logPrefix} ℹ️  Adding error handler middleware`);
+	logger.debug(`${logPrefix} ℹ️  Adding error handler middleware`);
 	app.use(errorHandler);
 
-	console.log(`${logPrefix} ✅ App initialization complete`);
+	logger.debug(`${logPrefix} ✅ App initialization complete`);
 	return app;
 }
 
@@ -71,17 +72,17 @@ export function createApp(): Express {
  */
 export function startServer(app: Express, port: number): void {
 	app.listen(port, () => {
-		console.log(
+		logger.info(
 			`${logPrefix} 🚀 Server is running at http://localhost:${port}`
 		);
 	});
 
 	process.on("SIGINT", () => {
-		console.log(`${logPrefix} ℹ️  Received SIGINT`);
+		logger.info(`${logPrefix} ℹ️  Received SIGINT`);
 		shutdown("SIGINT");
 	});
 	process.on("SIGTERM", () => {
-		console.log(`${logPrefix} ℹ️  Received SIGTERM`);
+		logger.info(`${logPrefix} ℹ️  Received SIGTERM`);
 		shutdown("SIGTERM");
 	});
 }
