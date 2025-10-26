@@ -3,6 +3,7 @@
 import { ZodError } from "zod";
 import { Request, Response, NextFunction } from "express";
 import { extractZodErrorMessage } from "./zodMessageExtractor.ts";
+import logger from "../../utils/logger.ts";
 
 /**
  * Mapping of known error names to corresponding HTTP status codes.
@@ -30,7 +31,7 @@ export function errorHandler(
 ): void {
 	const { status, name, message } = extractErrorData(err);
 
-	console.error(`${logPrefix} ❌  [${status}] ${name}: ${message}`);
+	logger.error(`${logPrefix} ❌  [${status}] ${name}: ${message}`);
 
 	res.status(status).json({ error: { name, message, status } });
 }
