@@ -4,12 +4,10 @@ import Account from "../../model/dtoTypes/Account.ts";
 import LoginData from "../../model/dtoTypes/LoginData.ts";
 import JwtUtil from "../../utils/security/JwtUtil.ts";
 import AccountingService from "./AccountingService.ts";
-import {
-	AuthenticationError,
-	LoginError,
-} from "../../model/errorTypes/aaaErrors.ts";
+import { LoginError } from "../../model/errorTypes/aaaErrors.ts";
 import passwordUtil from "../../utils/security/PasswordUtil.ts";
 import { mockAdminData, mockUserData } from "../../utils/mockData.ts";
+import logger from "../../utils/logger.ts";
 
 const logPrefix = "[AccountingService]";
 const messages = {
@@ -47,10 +45,10 @@ class AccountingServiceMap implements AccountingService {
 	private _accounts: Map<string, Account> = new Map();
 
 	constructor() {
-		console.log(messages.constructor.start);
+		logger.debug(messages.constructor.start);
 		this._accounts.set(mockUserData.username, mockUserData);
 		this._accounts.set(mockAdminData.username, mockAdminData);
-		console.log(messages.constructor.success(this._accounts.size));
+		logger.debug(messages.constructor.success(this._accounts.size));
 	}
 
 	/**
@@ -61,29 +59,29 @@ class AccountingServiceMap implements AccountingService {
 	 * @throws {AuthenticationError} If the credentials are invalid.
 	 */
 	login(loginData: LoginData): object {
-		console.log(messages.login.start(loginData.email));
+		logger.debug(messages.login.start(loginData.email));
 		const account: Account | undefined = this._accounts.get(
 			loginData.email
 		);
 
 		if (!account) {
-			console.warn(messages.login.warn.notFound(loginData.email));
+			logger.warn(messages.login.warn.notFound(loginData.email));
 			throw new LoginError();
 		}
 
-		console.log(messages.login.found(loginData.email));
+		logger.debug(messages.login.found(loginData.email));
 
 		const passwordValid = passwordUtil.verify(
 			loginData.password,
 			account.password
 		);
 		if (!passwordValid) {
-			console.warn(messages.login.warn.wrongPswrd(loginData.email));
+			logger.warn(messages.login.warn.wrongPswrd(loginData.email));
 			throw new LoginError();
 		}
 
 		const token = JwtUtil.getJWT(account);
-		console.log(messages.login.success(loginData.email));
+		console.debug(messages.login.success(loginData.email));
 
 		return {
 			accessToken: token,
