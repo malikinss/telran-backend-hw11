@@ -2,6 +2,7 @@
 
 import { fileStorage } from "./fileStorage.ts";
 import { employeesService } from "../service/employee/EmployeesServiceMap.ts";
+import logger from "./logger.ts";
 
 const logPrefix = "[Shutdown]";
 
@@ -23,7 +24,7 @@ const messages = {
  * process.on("SIGINT", () => gracefulShutdown("SIGINT"));
  */
 export default function gracefulShutdown(signal: string): void {
-	console.log(messages.start(signal));
+	logger.info(messages.start(signal));
 
 	try {
 		const employees = employeesService.toArray();
@@ -31,12 +32,12 @@ export default function gracefulShutdown(signal: string): void {
 
 		if (isUpdated) {
 			fileStorage.saveEmployees(employees, isUpdated);
-			console.log(messages.success);
+			logger.info(messages.success);
 		} else {
-			console.log(messages.noChanges);
+			logger.warn(messages.noChanges);
 		}
 	} catch (error) {
-		console.error(messages.error, error);
+		logger.error(messages.error, error);
 	} finally {
 		// Ensure the process always exits after shutdown
 		process.exit(0);
