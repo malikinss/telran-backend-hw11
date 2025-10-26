@@ -8,6 +8,7 @@ import {
 	AlreadyExistsError,
 	NotFoundError,
 } from "../../model/errorTypes/employeeErrors.ts";
+import logger from "../../utils/logger.ts";
 
 const logPrefix = "[EmployeeService]";
 
@@ -39,7 +40,7 @@ class EmployeesServiceMap implements EmployeesService {
 	private _loadFromFile(): void {
 		const loaded = fileStorage.loadEmployees();
 		this._fillEmployeeMap(loaded);
-		console.log(messages.loading(this._employees.size));
+		logger.debug(messages.loading(this._employees.size));
 	}
 
 	/**
@@ -53,7 +54,7 @@ class EmployeesServiceMap implements EmployeesService {
 			if (employee.id) {
 				this._employees.set(employee.id, employee);
 			} else {
-				console.warn(messages.fill(JSON.stringify(employee)));
+				logger.warn(messages.fill(JSON.stringify(employee)));
 			}
 		}
 	}
