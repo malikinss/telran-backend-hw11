@@ -6,9 +6,26 @@ import {
 	AuthenticationError,
 	AuthorizationError,
 } from "../../model/errorTypes/aaaErrors.ts";
+import logger from "../../utils/logger.ts";
 
 const BEARER_PREFIX = "Bearer ";
 const logPrefix = "[AuthMiddleware]";
+
+const messages = {
+	authenticate: {
+		success: (username, role) =>
+			`${logPrefix} ✅  Authenticated user: ${username}, role: ${role}`,
+		warn: `${logPrefix} ⚠️  Missing or malformed Authorization header`,
+		error: `${logPrefix} ❌ Invalid token`,
+	},
+	auth: {
+		warn1: `${logPrefix} ⚠️  Unauthorized access attempt`,
+		success: (username, role) =>
+			`${logPrefix} ✅  Authorized user: ${username}, role: ${role}`,
+		warn2: (username, role) =>
+			`${logPrefix} ⚠️  Forbidden: User ${username} with role ${role} tried to access restricted route`,
+	},
+};
 
 /**
  * Extended Request type that includes authentication fields.
@@ -38,9 +55,7 @@ export function authenticate(
 	const authHeader = req.header("Authorization");
 
 	if (!authHeader || !authHeader.startsWith(BEARER_PREFIX)) {
-		console.warn(
-			`${logPrefix} ⚠️  Missing or malformed Authorization header`
-		);
+		logger.warn(messages.authenticate.warn);
 		throw new AuthenticationError();
 	}
 
@@ -51,12 +66,10 @@ export function authenticate(
 		req.username = payload.sub as string;
 		req.role = payload.role as string;
 
-		console.log(
-			`${logPrefix} ✅  Authenticated user: ${req.username}, role: ${req.role}`
-		);
+		logger.info(messages.authenticate.success(req.username, req.role));
 		next();
 	} catch (err) {
-		console.error(`${logPrefix} ❌ Invalid token`, err);
+		logger.error(messages.authenticate.error, err);
 		throw new AuthenticationError();
 	}
 }
@@ -80,20 +93,16 @@ export function auth(roles: string[]): RequestHandler {
 		next: NextFunction
 	): void => {
 		if (!req.role) {
-			console.warn(`${logPrefix} ⚠️  Unauthorized access attempt`);
+			logger.warn(messages.auth.warn1);
 			throw new AuthenticationError();
 		}
 
 		if (!roles.includes(req.role)) {
-			console.warn(
-				`${logPrefix} ⚠️  Forbidden: User ${req.username} with role ${req.role} tried to access restricted route`
-			);
+			logger.warn(messages.auth.warn2(req.username, req.role));
 			throw new AuthorizationError();
 		}
 
-		console.log(
-			`${logPrefix} ✅  Authorized user: ${req.username}, role: ${req.role}`
-		);
+		logger.info(messages.auth.success(req.username, req.role));
 		next();
 	};
 }
