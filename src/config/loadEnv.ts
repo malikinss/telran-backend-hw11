@@ -2,6 +2,7 @@
 
 import dotenv from "dotenv";
 import path from "path";
+import logger from "../utils/logger.ts";
 
 /**
  * Loads environment variables from a `.env` file at the project root.
@@ -15,6 +16,6 @@ const envPath = path.resolve(process.cwd(), ".env");
 dotenv.config({ path: envPath });
 
 const logPrefix = "[LoadEnv]";
-console.log(
+logger.info(
 	`${logPrefix} ✅ .env loaded, environment variables are now available`
 );
