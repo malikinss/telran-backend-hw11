@@ -3,7 +3,7 @@
 import { Request, Response, NextFunction } from "express";
 import accountingService from "../service/accounting/AccountingServiceMap.ts";
 import LoginData from "../model/dtoTypes/LoginData.ts";
-import { success } from "zod";
+import logger from "../utils/logger.ts";
 
 const logPrefix = "[AccountingController]";
 const messages = {
@@ -41,16 +41,16 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 		const data: LoginData = req.body as LoginData;
 
 		// Log received login data (without password for security)
-		console.log(messages.start(data.email));
+		logger.debug(messages.start(data.email));
 
 		const token = accountingService.login(data);
 
 		// Log success with token length only (avoid full JWT in logs for security)
-		console.log(messages.success(data.email));
+		logger.info(messages.success(data.email));
 
 		res.status(200).json({ token });
 	} catch (error) {
-		console.error(messages.error, (error as Error).message);
+		logger.error(messages.error, (error as Error).message);
 		next(error);
 	}
 }
