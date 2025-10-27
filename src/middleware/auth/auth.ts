@@ -13,14 +13,14 @@ const logPrefix = "[AuthMiddleware]";
 
 const messages = {
 	authenticate: {
-		start: "${logPrefix} ℹ️  Authenthiciation started",
+		start: `${logPrefix} ℹ️  Authenthiciation started`,
 		success: (username, role) =>
 			`${logPrefix} ✅  Authenticated user: ${username}, role: ${role}`,
 		warn: `${logPrefix} ⚠️  Missing or malformed Authorization header`,
 		error: `${logPrefix} ❌ Invalid token`,
 	},
 	auth: {
-		start: "ℹ️  Authorization started",
+		start: `${logPrefix}ℹ️  Authorization started`,
 		warn1: `${logPrefix} ⚠️  Unauthorized access attempt`,
 		success: (username, role) =>
 			`${logPrefix} ✅  Authorized user: ${username}, role: ${role}`,
