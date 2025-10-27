@@ -21,21 +21,21 @@ const allAuth: RequestHandler = auth(["USER", "ADMIN"]);
 const adminAuth: RequestHandler = auth(["ADMIN"]);
 
 /**
- * GET /api/employees
+ * GET /employees
  * Returns all employees.
  * Access: USER, ADMIN
  */
 router.get("/", allAuth, getAllEmployees);
 
 /**
- * POST /api/employees
+ * POST /employees
  * Creates a new employee.
  * Access: ADMIN only
  */
 router.post("/", adminAuth, validate(employeeSchema), createEmployee);
 
 /**
- * PATCH /api/employees/:id
+ * PATCH /employees/:id
  * Updates an existing employee partially.
  * Access: ADMIN only
  */
@@ -47,7 +47,7 @@ router.patch(
 );
 
 /**
- * DELETE /api/employees/:id
+ * DELETE /employees/:id
  * Deletes an employee by ID.
  * Access: ADMIN only
  */
