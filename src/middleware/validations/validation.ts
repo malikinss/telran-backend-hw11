@@ -2,6 +2,7 @@
 
 import { ZodType } from "zod";
 import { RequestHandler } from "express";
+import logger from "../../utils/logger.ts";
 
 const logPrefix = "[Validation]";
 const messages = {
@@ -25,13 +26,13 @@ export default function validate(
 	schema: ZodType<any, any, any>
 ): RequestHandler {
 	return (req, _res, next) => {
-		console.log(messages.start);
+		logger.debug(messages.start);
 		const result = schema.safeParse(req.body);
 		if (!result.success) {
-			console.error(messages.error);
+			logger.error(messages.error);
 			throw result.error;
 		}
-		console.log(messages.success);
+		logger.info(messages.success);
 		next();
 	};
 }
