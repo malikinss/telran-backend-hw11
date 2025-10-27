@@ -21,7 +21,7 @@ winston.addColors({
 const level = (): string => {
 	const env = process.env.NODE_ENV || "development";
 	const isDevelopment = env === "development";
-	return isDevelopment ? "debug" : env;
+	return isDevelopment ? "debug" : "error";
 };
 
 const logFormat = combine(
@@ -33,17 +33,14 @@ const logFormat = combine(
 	)
 );
 
-const transports = [
-	new winston.transports.Console(),
-	// Пример для записи в файл:
-	// new winston.transports.File({ filename: 'logs/app.log' }),
-];
-
-const logger = winston.createLogger({
+const transports = [new winston.transports.Console()];
+const logOptions = {
 	level: level(),
 	levels,
 	format: logFormat,
 	transports,
-});
+};
+
+const logger = winston.createLogger(logOptions);
 
 export default logger;
