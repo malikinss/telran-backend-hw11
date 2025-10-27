@@ -24,7 +24,7 @@ const messages = {
  * process.on("SIGINT", () => gracefulShutdown("SIGINT"));
  */
 export default function gracefulShutdown(signal: string): void {
-	logger.info(messages.start(signal));
+	logger.debug(messages.start(signal));
 
 	try {
 		const employees = employeesService.toArray();
