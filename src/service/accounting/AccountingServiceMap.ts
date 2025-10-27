@@ -81,7 +81,7 @@ class AccountingServiceMap implements AccountingService {
 		}
 
 		const token = JwtUtil.getJWT(account);
-		console.debug(messages.login.success(loginData.email));
+		console.info(messages.login.success(loginData.email));
 
 		return {
 			accessToken: token,
