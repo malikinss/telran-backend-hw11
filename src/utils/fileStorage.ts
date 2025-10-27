@@ -4,6 +4,7 @@ import fs from "fs";
 import { Employee } from "../model/dtoTypes/Employee.ts";
 import { STORAGE_CONFIG } from "../config/storageConfig.ts";
 import { saveJsonToFile } from "./saveJsonToFile.ts";
+import logger from "./logger.ts";
 
 const logPrefix = "[fileStorage]";
 const messages = {
@@ -55,7 +56,7 @@ function loadEmployees(): Employee[] {
 		});
 		return JSON.parse(data) as Employee[];
 	} catch (error) {
-		console.error(messages.loading.error, error);
+		logger.error(messages.loading.error, error);
 		return [];
 	}
 }
@@ -78,16 +79,16 @@ function loadEmployees(): Employee[] {
  */
 function saveEmployees(employees: Employee[], isUpdated: boolean): void {
 	if (!isUpdated) {
-		console.log(messages.saving.nothingToSave);
+		logger.warn(messages.saving.nothingToSave);
 		return;
 	}
 
 	try {
 		ensureStorageReady();
 		saveJsonToFile(employees);
-		console.log(messages.saving.success);
+		logger.info(messages.saving.success);
 	} catch (error) {
-		console.error(messages.saving.error, error);
+		logger.error(messages.saving.error, error);
 	}
 }
 
