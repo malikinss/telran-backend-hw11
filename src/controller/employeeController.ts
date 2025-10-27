@@ -3,7 +3,7 @@
 import { Request, Response, NextFunction } from "express";
 import { employeesService } from "../service/employee/EmployeesServiceMap.ts";
 import { Employee } from "../model/dtoTypes/Employee.ts";
-import { success } from "zod";
+import logger from "../utils/logger.ts";
 
 const logPrefix = "[EmployeeController]";
 const messages = {
@@ -42,9 +42,9 @@ function getAllEmployees(req: Request, res: Response, _: NextFunction) {
 		typeof req.query.department === "string"
 			? req.query.department
 			: undefined;
-	console.log(messages.getAll.start, { department });
+	logger.debug(messages.getAll.start, { department });
 	const employees: Employee[] = employeesService.getAll(department);
-	console.log(messages.getAll.success(employees.length));
+	logger.info(messages.getAll.success(employees.length));
 	res.status(200).json(employees);
 }
 
@@ -63,12 +63,12 @@ function getAllEmployees(req: Request, res: Response, _: NextFunction) {
  */
 function createEmployee(req: Request, res: Response, _: NextFunction) {
 	const newEmployee: Employee = req.body as Employee;
-	console.log(messages.create.start, {
+	logger.debug(messages.create.start, {
 		fullName: newEmployee.fullName,
 		department: newEmployee.department,
 	});
 	const addedEmployee: Employee = employeesService.addEmployee(newEmployee);
-	console.log(messages.create.success(addedEmployee.id));
+	logger.info(messages.create.success(addedEmployee.id));
 	res.status(201).json(addedEmployee);
 }
 
@@ -86,12 +86,12 @@ function createEmployee(req: Request, res: Response, _: NextFunction) {
  */
 function updateEmployee(req: Request, res: Response, _: NextFunction) {
 	const id: string = req.params.id;
-	console.log(messages.update.success, { id, updates: req.body });
+	logger.debug(messages.update.start, { id, updates: req.body });
 	const updated: Employee | null = employeesService.updateEmployee(
 		id,
 		req.body as Partial<Employee>
 	);
-	console.log(messages.update.success(updated?.id));
+	logger.info(messages.update.success(updated?.id));
 	res.status(200).json(updated);
 }
 
@@ -108,9 +108,9 @@ function updateEmployee(req: Request, res: Response, _: NextFunction) {
  */
 function deleteEmployee(req: Request, res: Response, _: NextFunction) {
 	const id: string = req.params.id;
-	console.log(messages.delete.start, { id });
+	logger.debug(messages.delete.start, { id });
 	const deleted: Employee | null = employeesService.deleteEmployee(id);
-	console.log(messages.delete.success(deleted?.id));
+	logger.info(messages.delete.success(deleted?.id));
 	res.status(200).json(deleted);
 }
 
