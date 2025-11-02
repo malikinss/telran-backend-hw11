@@ -50,9 +50,9 @@ const messages = {
  * // Returns validated employee object or throws ZodError if invalid.
  */
 export const employeeSchema = z.object({
-	id: z.string().uuid().optional(),
+	id: z.uuid().optional(),
 	fullName: z.string().min(2, { message: messages.name }),
-	avatar: z.string().url({ message: messages.avatar }),
+	avatar: z.url({ message: messages.avatar }),
 	department: z
 		.string()
 		.refine((dep) => deps.has(dep), { message: messages.department }),
