@@ -80,11 +80,11 @@ class AccountingServiceMap implements AccountingService {
 			throw new LoginError();
 		}
 
-		const token = JwtUtil.getJWT(account);
+		const accessToken = JwtUtil.getJWT(account);
 		logger.info(messages.login.success(loginData.email));
 
 		return {
-			accessToken: token,
+			accessToken: accessToken,
 			user: {
 				email: account.username,
 				role: account.role,
