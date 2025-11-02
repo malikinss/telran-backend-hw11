@@ -1,11 +1,13 @@
 // src/__tests__/testData/employeeTestData.test.ts
 
+import { v4 as uuidv4 } from "uuid";
 import { Employee } from "../../model/dtoTypes/Employee.ts";
 
 /**
  * ✅ Valid employee data (should pass validation)
  */
 const validEmployee: Employee = {
+	id: uuidv4(),
 	avatar: "https://example.com/avatar.png",
 	birthDate: "2000-01-01",
 	department: "QA",
