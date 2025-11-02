@@ -24,7 +24,7 @@ const userAuthHeader = JwtUtil.createAuthHeader(userToken);
  */
 const loginCorrect: LoginData = {
 	email: "user@tel-ran.com",
-	password: "user12345",
+	password: "User12345",
 };
 
 const loginIncorrect: LoginData = {
