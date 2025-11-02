@@ -1,3 +1,4 @@
+// src/utils/logger.ts
 import winston from "winston";
 
 const { combine, timestamp, printf, colorize } = winston.format;
@@ -18,12 +19,18 @@ winston.addColors({
 	debug: "blue",
 });
 
-const level = (): string => {
-	const env = process.env.NODE_ENV.toString();
-	const isDevelopment = env === "development";
-	return isDevelopment ? "debug" : env;
+/**
+ * Get log level based on environment.
+ * @returns {string} Log level
+ */
+const getLogLevel = (): string => {
+	const env = process.env.NODE_ENV ?? "development";
+	return env === "development" ? "debug" : "info";
 };
 
+/**
+ * Log format configuration.
+ */
 const logFormat = combine(
 	colorize({ all: true }),
 	timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
@@ -33,14 +40,29 @@ const logFormat = combine(
 	)
 );
 
-const transports = [new winston.transports.Console()];
-const logOptions = {
-	level: level(),
+/**
+ * Transports configuration based on environment.
+ * @type {winston.transport[]}
+ */
+const transports: winston.transport[] =
+	process.env.NODE_ENV === "test"
+		? [
+				new winston.transports.Stream({
+					stream: process.stdout,
+					silent: true, // logs will not be output
+				}),
+		  ]
+		: [new winston.transports.Console()];
+
+/**
+ * Winston Logger instance.
+ * @type {winston.Logger}
+ */
+const logger: winston.Logger = winston.createLogger({
+	level: getLogLevel(),
 	levels,
 	format: logFormat,
 	transports,
-};
-
-const logger = winston.createLogger(logOptions);
+});
 
 export default logger;
