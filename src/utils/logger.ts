@@ -21,7 +21,7 @@ winston.addColors({
 const level = (): string => {
 	const env = process.env.NODE_ENV.toString();
 	const isDevelopment = env === "development";
-	return isDevelopment ? "debug" : "error";
+	return isDevelopment ? "debug" : env;
 };
 
 const logFormat = combine(
