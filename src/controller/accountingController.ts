@@ -43,12 +43,12 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 		// Log received login data (without password for security)
 		logger.debug(messages.start(data.email));
 
-		const token = accountingService.login(data);
+		const result = accountingService.login(data);
 
 		// Log success with token length only (avoid full JWT in logs for security)
 		logger.info(messages.success(data.email));
 
-		res.status(200).json({ token });
+		res.status(200).json(result);
 	} catch (error) {
 		logger.error(messages.error, (error as Error).message);
 		next(error);
